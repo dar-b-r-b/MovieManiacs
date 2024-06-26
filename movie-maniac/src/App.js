@@ -39,14 +39,14 @@ function MoviesInformation() {
         Reprehenderit do proident enim laboris sint sunt cupidatat incididunt
         eu. Commodo consectetur officia enim.
       </p>
-      <div className="flex flex-col items-center">
+      <button className="flex flex-col items-center">
         <img className="size-fit" alt="" src="icon-eye-50.png"></img>
         <p>Просмотрено</p>
-      </div>
-      <div className="flex flex-col items-center">
+      </button>
+      <button className="flex flex-col items-center">
         <img className="size-fit" alt="" src="icon-delete-50.png"></img>
         <p>Удалить</p>
-      </div>
+      </button>
     </div>
   );
 }

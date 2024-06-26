@@ -11,12 +11,12 @@ function UploadMovieCover() {
       >
         Обложка
       </label>
-      <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+      <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-4">
         <div className="text-center">
-          <div className="mt-4 flex text-sm leading-6 text-gray-600">
+          <div className="flex text-sm leading-6 text-gray-600">
             <label
               htmlFor="file-upload"
-              className="relative cursor-pointer rounded-md bg-white font-semibold text-red-800 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+              className="relative cursor-pointer rounded-md bg-white font-semibold text-red-800 focus-within:outline-none"
             >
               <span>Upload a file</span>
               <input
@@ -117,7 +117,7 @@ export default function AddMovieForm() {
         <div className="flex min-h-full items-stretch justify-center text-center md:items-center md:px-2 lg:px-4">
           <DialogPanel
             transition
-            className="flex w-full transform text-left text-base transition data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in md:my-8 md:max-w-2xl md:px-4 data-[closed]:md:translate-y-0 data-[closed]:md:scale-95 lg:max-w-3xl"
+            className="flex w-full transform text-left text-base transition data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in md:max-w-2xl md:px-4 data-[closed]:md:translate-y-0 data-[closed]:md:scale-95 lg:max-w-3xl"
           >
             <div className="relative flex w-full items-center overflow-hidden bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
               <button
@@ -133,7 +133,31 @@ export default function AddMovieForm() {
                 <InputMovieTitle />
                 <InputMovieGenre />
                 <InputCommentAboutMovie />
-                <div className="mt-6 flex justify-end gap-x-6">
+                <div
+                  class="mt-4 flex p-4 text-sm text-red-800 rounded-lg bg-red-50"
+                  role="alert"
+                >
+                  <svg
+                    class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                  </svg>
+                  <span class="sr-only">Danger</span>
+                  <div>
+                    <span class="font-medium">
+                      Ensure that these requirements are met:
+                    </span>
+                    <ul class="mt-1.5 list-disc list-inside">
+                      <li>At least 10 characters (and up to 100 characters)</li>
+                      <li>At least one lowercase character</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-4 flex justify-end gap-x-6">
                   <button
                     type="button"
                     className="text-sm font-semibold leading-6 text-gray-900"
