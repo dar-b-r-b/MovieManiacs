@@ -1,7 +1,35 @@
 import "./App.css";
+import { useState } from "react";
 import AddMovieForm from "./AddMovieForm";
 const classNameForButtons =
   "rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50";
+
+const movies = [
+  {
+    id: "1",
+    title: "Земля кочевников",
+    image: "Nomadland.jpg",
+    comment: "Рейтинг IMDb 7.3",
+    genres: ["драма"],
+    isWatched: false,
+  },
+  {
+    id: "2",
+    title: "Бескрайний бассейн",
+    image: "Infinity Pool.jpg",
+    comment: "",
+    genres: ["фантастика", "триллер"],
+    isWatched: true,
+  },
+  {
+    id: "3",
+    title: "Дом дракона",
+    image: "House of the Dragon.jpg",
+    comment: "Сериал",
+    genres: ["фэнтези", "боевик"],
+    isWatched: false,
+  },
+];
 
 function Header() {
   return (
@@ -26,26 +54,47 @@ function ButtonRandomMovie() {
     </button>
   );
 }
+function IsWatchedButton({ id, isWatched }) {
+  const [watched, setWatched] = useState(isWatched);
+  function handleClick() {
+    setWatched(!watched);
+  }
+  return (
+    <button className="flex flex-col items-center" onClick={handleClick}>
+      <img
+        className="size-fit"
+        alt="Просмотрено"
+        src={watched ? "icons-closed-eye-50.png" : "icon-eye-50.png"}
+      ></img>
+    </button>
+  );
+}
 
 function MoviesInformation() {
   return (
-    <div className="flex mt-6 mr-28 ml-28 justify-evenly h-24">
-      <img alt="Обложка фильма" src="film-cover.jpg" className=""></img>
-      <div className="flex flex-wrap basis-72">
-        <p>Название: Non nisi sit commodo culpa quis.</p>
-        <p>Жанр: Genre, genre</p>
-      </div>
-      <p className="basis-72">
-        Reprehenderit do proident enim laboris sint sunt cupidatat incididunt
-        eu. Commodo consectetur officia enim.
-      </p>
-      <button className="flex flex-col items-center">
-        <img className="size-fit" alt="Просмотрено" src="icon-eye-50.png"></img>
-      </button>
-      <button className="flex flex-col items-center">
-        <img className="size-fit" alt="Удалить" src="icon-delete-50.png"></img>
-      </button>
-    </div>
+    <>
+      {movies.map((movie) => (
+        <div
+          key={movie.id}
+          className="flex mt-6 mr-28 ml-28 justify-evenly h-24"
+        >
+          <img alt="Обложка фильма" src={movie.image} className=""></img>
+          <div className="flex flex-wrap basis-72">
+            <p>Название: {movie.title}</p>
+            <p>Жанр: {movie.genres.join(", ")}</p>
+          </div>
+          <p className="basis-72">{movie.comment}</p>
+          <IsWatchedButton id={movie.id} isWatched={movie.isWatched} />
+          <button className="flex flex-col items-center">
+            <img
+              className="size-fit"
+              alt="Удалить"
+              src="icon-delete-50.png"
+            ></img>
+          </button>
+        </div>
+      ))}
+    </>
   );
 }
 
@@ -57,8 +106,6 @@ function App() {
         <ButtonAddMovie />
         <ButtonRandomMovie />
       </div>
-      <MoviesInformation />
-      <MoviesInformation />
       <MoviesInformation />
       <AddMovieForm />
       <div className="mt-6 flex justify-center">
@@ -75,9 +122,9 @@ function App() {
           >
             <path
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M13 5H1m0 0 4 4M1 5l4-4"
             />
           </svg>
@@ -95,9 +142,9 @@ function App() {
           >
             <path
               stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M1 5h12m0 0L9 1m4 4L9 9"
             />
           </svg>

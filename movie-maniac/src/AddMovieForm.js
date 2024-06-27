@@ -105,7 +105,7 @@ function InputCommentAboutMovie() {
 }
 
 export default function AddMovieForm() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <Dialog className="relative z-10" open={isOpen} onClose={setIsOpen}>
       <DialogBackdrop
