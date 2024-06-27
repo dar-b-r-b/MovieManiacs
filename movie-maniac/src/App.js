@@ -40,12 +40,10 @@ function MoviesInformation() {
         eu. Commodo consectetur officia enim.
       </p>
       <button className="flex flex-col items-center">
-        <img className="size-fit" alt="" src="icon-eye-50.png"></img>
-        <p>Просмотрено</p>
+        <img className="size-fit" alt="Просмотрено" src="icon-eye-50.png"></img>
       </button>
       <button className="flex flex-col items-center">
-        <img className="size-fit" alt="" src="icon-delete-50.png"></img>
-        <p>Удалить</p>
+        <img className="size-fit" alt="Удалить" src="icon-delete-50.png"></img>
       </button>
     </div>
   );
