@@ -4,7 +4,7 @@ import AddMovieForm from "./AddMovieForm";
 const classNameForButtons =
   "rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50";
 
-const movies = [
+const initialMovies = [
   {
     id: "1",
     title: "Земля кочевников",
@@ -47,9 +47,22 @@ function ButtonAddMovie() {
   );
 }
 
-function ButtonRandomMovie() {
+function ButtonRandomMovie({ movies, setMovies }) {
+  function shuffle(movies) {
+    return movies.toSorted(() => Math.random() - 0.5);
+  }
+
   return (
-    <button type="button" className={classNameForButtons + " mr-32 mb-6"}>
+    <button
+      type="button"
+      className={classNameForButtons + " mr-32 mb-6"}
+      onClick={() =>
+        setMovies([
+          ...shuffle(movies.filter((m) => !m.isWatched)),
+          ...shuffle(movies.filter((m) => m.isWatched)),
+        ])
+      }
+    >
       Рандомный фильм
     </button>
   );
@@ -70,7 +83,7 @@ function IsWatchedButton({ id, isWatched }) {
   );
 }
 
-function MoviesInformation() {
+function MoviesInformation({ movies, setMovies }) {
   return (
     <>
       {movies.map((movie) => (
@@ -85,7 +98,10 @@ function MoviesInformation() {
           </div>
           <p className="basis-72">{movie.comment}</p>
           <IsWatchedButton id={movie.id} isWatched={movie.isWatched} />
-          <button className="flex flex-col items-center">
+          <button
+            className="flex flex-col items-center"
+            onClick={() => setMovies(movies.filter((m) => m.id !== movie.id))}
+          >
             <img
               className="size-fit"
               alt="Удалить"
@@ -99,15 +115,16 @@ function MoviesInformation() {
 }
 
 function App() {
+  const [movies, setMovies] = useState(initialMovies);
   return (
     <>
       <Header />
       <div className="flex justify-evenly mt-4">
         <ButtonAddMovie />
-        <ButtonRandomMovie />
+        <ButtonRandomMovie movies={movies} setMovies={setMovies} />
       </div>
-      <MoviesInformation />
-      <AddMovieForm />
+      <MoviesInformation movies={movies} setMovies={setMovies} />
+      <AddMovieForm movies={movies} setMovies={setMovies} />
       <div className="mt-6 flex justify-center">
         <a
           href="/#"
