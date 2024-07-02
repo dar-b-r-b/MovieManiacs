@@ -39,9 +39,13 @@ function Header() {
   );
 }
 
-function ButtonAddMovie() {
+function ButtonAddMovie({ setIsOpen }) {
   return (
-    <button type="button" className={classNameForButtons + " ml-32 mb-6"}>
+    <button
+      type="button"
+      className={classNameForButtons + " ml-32 mb-6"}
+      onClick={() => setIsOpen(true)}
+    >
       Добавить фильм
     </button>
   );
@@ -116,15 +120,21 @@ function MoviesInformation({ movies, setMovies }) {
 
 function App() {
   const [movies, setMovies] = useState(initialMovies);
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <Header />
       <div className="flex justify-evenly mt-4">
-        <ButtonAddMovie />
+        <ButtonAddMovie setIsOpen={setIsOpen} />
         <ButtonRandomMovie movies={movies} setMovies={setMovies} />
       </div>
       <MoviesInformation movies={movies} setMovies={setMovies} />
-      <AddMovieForm movies={movies} setMovies={setMovies} />
+      <AddMovieForm
+        movies={movies}
+        setMovies={setMovies}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
       <div className="mt-6 flex justify-center">
         <a
           href="/#"

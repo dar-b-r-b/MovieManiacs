@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -104,8 +103,7 @@ function InputCommentAboutMovie() {
   );
 }
 
-export default function AddMovieForm() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function AddMovieForm({ isOpen, setIsOpen }) {
   return (
     <Dialog className="relative z-10" open={isOpen} onClose={setIsOpen}>
       <DialogBackdrop
