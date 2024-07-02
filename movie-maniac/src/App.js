@@ -96,11 +96,11 @@ function MoviesInformation({ movies, setMovies }) {
           className="flex mt-6 mr-28 ml-28 justify-evenly h-24"
         >
           <img alt="Обложка фильма" src={movie.image} className=""></img>
-          <div className="flex flex-wrap basis-72">
+          <div className="flex flex-col justify-evenly basis-72">
             <p>Название: {movie.title}</p>
             <p>Жанр: {movie.genres.join(", ")}</p>
           </div>
-          <p className="basis-72">{movie.comment}</p>
+          <p className="basis-72 pt-3">{movie.comment}</p>
           <IsWatchedButton id={movie.id} isWatched={movie.isWatched} />
           <button
             className="flex flex-col items-center"

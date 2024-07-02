@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-function UploadMovieCover() {
+function UploadMovieCover({ cover, setCover }) {
   return (
     <div>
       <label
@@ -36,7 +37,7 @@ function UploadMovieCover() {
   );
 }
 
-function InputMovieTitle() {
+function InputMovieTitle({ title, setTitle }) {
   return (
     <div className="mt-4 flex flex-col gap-x-6 gap-y-8">
       <div className="sm:col-span-3">
@@ -52,6 +53,8 @@ function InputMovieTitle() {
             name="movie-name"
             id="movie-name"
             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+            onChange={(e) => setTitle(e.target.value)}
+            value={title}
           />
         </div>
       </div>
@@ -59,7 +62,7 @@ function InputMovieTitle() {
   );
 }
 
-function InputMovieGenre() {
+function InputMovieGenre({ genres, setGenres }) {
   return (
     <div className="mt-4 flex flex-col gap-x-6 gap-y-8">
       <div className="sm:col-span-3">
@@ -75,13 +78,15 @@ function InputMovieGenre() {
             name="movie-genre"
             id="movie-genre"
             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
+            onChange={(e) => setGenres(e.target.value)}
+            value={genres}
           />
         </div>
       </div>
     </div>
   );
 }
-function InputCommentAboutMovie() {
+function InputCommentAboutMovie({ comment, setComment }) {
   return (
     <div className="mt-4">
       <label
@@ -96,14 +101,20 @@ function InputCommentAboutMovie() {
           name="comment"
           rows={2}
           className=" pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-          defaultValue={""}
+          defaultValue={comment}
+          onChange={(e) => setComment(e.target.value)}
         />
       </div>
     </div>
   );
 }
 
-export default function AddMovieForm({ isOpen, setIsOpen }) {
+export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
+  const [cover, setCover] = useState(null);
+  const [title, setTitle] = useState("");
+  const [genres, setGenres] = useState("");
+  const [comment, setComment] = useState("");
+
   return (
     <Dialog className="relative z-10" open={isOpen} onClose={setIsOpen}>
       <DialogBackdrop
@@ -127,10 +138,13 @@ export default function AddMovieForm({ isOpen, setIsOpen }) {
               </button>
 
               <div className="flex flex-col w-full">
-                <UploadMovieCover />
-                <InputMovieTitle />
-                <InputMovieGenre />
-                <InputCommentAboutMovie />
+                <UploadMovieCover cover={cover} setCover={setCover} />
+                <InputMovieTitle title={title} setTitle={setTitle} />
+                <InputMovieGenre genres={genres} setGenres={setGenres} />
+                <InputCommentAboutMovie
+                  comment={comment}
+                  setComment={setComment}
+                />
                 <div
                   className="mt-4 flex p-4 text-sm text-red-800 rounded-lg bg-red-50"
                   role="alert"
@@ -165,6 +179,19 @@ export default function AddMovieForm({ isOpen, setIsOpen }) {
                   <button
                     type="submit"
                     className="rounded-md bg-red-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    onClick={() =>
+                      setMovies([
+                        {
+                          id: (movies.length + 1).toString(),
+                          title,
+                          comment,
+                          image: "film-cover.jpg",
+                          genres: genres.split(", "),
+                          isWatched: false,
+                        },
+                        ...movies,
+                      ])
+                    }
                   >
                     Сохранить
                   </button>
