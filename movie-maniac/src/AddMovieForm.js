@@ -37,7 +37,7 @@ function UploadMovieCover({ cover, setCover }) {
   );
 }
 
-function InputMovieTitle({ title, setTitle }) {
+function InputMovieTitle({ title, setTitle, isDisabled, setIsDisabled }) {
   return (
     <div className="mt-4 flex flex-col gap-x-6 gap-y-8">
       <div className="sm:col-span-3">
@@ -53,7 +53,10 @@ function InputMovieTitle({ title, setTitle }) {
             name="movie-name"
             id="movie-name"
             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              isDisabled ? setIsDisabled(false) : setIsDisabled("");
+            }}
             value={title}
           />
         </div>
@@ -101,7 +104,7 @@ function InputCommentAboutMovie({ comment, setComment }) {
           name="comment"
           rows={2}
           className=" pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-          defaultValue={comment}
+          value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
       </div>
@@ -114,7 +117,29 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
   const [title, setTitle] = useState("");
   const [genres, setGenres] = useState("");
   const [comment, setComment] = useState("");
+  const [isDisabled, setIsDisabled] = useState(false);
 
+  function clearingInputFields() {
+    setTitle("");
+    setGenres("");
+    setComment("");
+  }
+
+  function addMovieInList() {
+    setMovies([
+      {
+        id: (movies.length + 1).toString(),
+        title,
+        comment,
+        image: "film-cover.jpg",
+        genres: genres.split(", "),
+        isWatched: false,
+      },
+      ...movies,
+    ]);
+    setIsDisabled(true);
+    clearingInputFields();
+  }
   return (
     <Dialog className="relative z-10" open={isOpen} onClose={setIsOpen}>
       <DialogBackdrop
@@ -132,14 +157,23 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
               <button
                 type="button"
                 className="absolute right-4 top-4 text-gray-400 hover:text-gray-500 sm:right-4 sm:top-6 md:right-4 md:top-4 lg:right-6 lg:top-6"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsDisabled(false);
+                  clearingInputFields();
+                }}
               >
                 <XMarkIcon className="h-6 w-6" aria-hidden="true" />
               </button>
 
               <div className="flex flex-col w-full">
                 <UploadMovieCover cover={cover} setCover={setCover} />
-                <InputMovieTitle title={title} setTitle={setTitle} />
+                <InputMovieTitle
+                  title={title}
+                  setTitle={setTitle}
+                  isDisabled={isDisabled}
+                  setIsDisabled={setIsDisabled}
+                />
                 <InputMovieGenre genres={genres} setGenres={setGenres} />
                 <InputCommentAboutMovie
                   comment={comment}
@@ -173,25 +207,20 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                   <button
                     type="button"
                     className="text-sm font-semibold leading-6 text-gray-900"
+                    onClick={() => {
+                      setIsDisabled(true);
+                      clearingInputFields();
+                    }}
                   >
                     Отмена
                   </button>
                   <button
                     type="submit"
+                    disabled={isDisabled}
                     className="rounded-md bg-red-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    onClick={() =>
-                      setMovies([
-                        {
-                          id: (movies.length + 1).toString(),
-                          title,
-                          comment,
-                          image: "film-cover.jpg",
-                          genres: genres.split(", "),
-                          isWatched: false,
-                        },
-                        ...movies,
-                      ])
-                    }
+                    onClick={() => {
+                      title !== "" ? addMovieInList() : setIsDisabled(true);
+                    }}
                   >
                     Сохранить
                   </button>
