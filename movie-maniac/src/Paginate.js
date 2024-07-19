@@ -28,7 +28,11 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
             key={movie.id}
             className="flex mt-4 mr-28 ml-28 justify-evenly h-24"
           >
-            <img alt="Обложка фильма" src={movie.image} className=""></img>
+            <img
+              alt="Обложка фильма"
+              src={movie.image ? "" : "film-cover.jpg"}
+              className=""
+            ></img>
             <div className="flex flex-col justify-evenly basis-72">
               <p>Название: {movie.title}</p>
               <p>Жанр: {movie.genres.join(", ")}</p>
