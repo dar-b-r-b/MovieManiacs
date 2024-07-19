@@ -2,6 +2,8 @@ import { useState } from "react";
 import ReactPaginate from "react-paginate";
 import { GoArrowLeft } from "react-icons/go";
 import { GoArrowRight } from "react-icons/go";
+import axios from "axios";
+import { serverUrl } from "./config.js";
 
 function IsWatchedButton({ id, isWatched }) {
   const [watched, setWatched] = useState(isWatched);
@@ -20,6 +22,16 @@ function IsWatchedButton({ id, isWatched }) {
 }
 
 function MoviesInformation({ movies, setMovies, currentItems }) {
+  async function deleteMovie(id) {
+    try {
+      const response = await axios.delete(`${serverUrl}/${id}`);
+      console.log(response);
+      setMovies(movies.filter((m) => m.id !== id));
+    } catch (err) {
+      console.error(err.toJSON());
+    }
+  }
+
   return (
     <>
       {currentItems &&
@@ -41,7 +53,7 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
             <IsWatchedButton id={movie.id} isWatched={movie.isWatched} />
             <button
               className="flex flex-col items-center"
-              onClick={() => setMovies(movies.filter((m) => m.id !== movie.id))}
+              onClick={() => deleteMovie(movie.id)}
             >
               <img
                 className="size-fit"

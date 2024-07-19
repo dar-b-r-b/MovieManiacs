@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import axios from "axios";
+import { serverUrl } from "./config.js";
 
 function UploadMovieCover({ cover, setCover }) {
   return (
@@ -119,27 +121,24 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
   const [comment, setComment] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
 
-  function clearingInputFields() {
+  function clearInputFields() {
     setTitle("");
     setGenres("");
     setComment("");
   }
 
-  function addMovieInList() {
-    setMovies([
-      {
-        id: (movies.length + 1).toString(),
-        title,
-        comment,
-        image: "film-cover.jpg",
-        genres: genres.split(", "),
-        isWatched: false,
-      },
-      ...movies,
-    ]);
-    setIsDisabled(true);
-    clearingInputFields();
+  async function addMovieInList(newMovie) {
+    try {
+      const response = await axios.post(serverUrl, newMovie);
+      console.log(response.data);
+      setMovies([response.data.movie, ...movies]);
+      setIsDisabled(true);
+      clearInputFields();
+    } catch (err) {
+      console.error(err.toJSON());
+    }
   }
+
   return (
     <Dialog className="relative z-10" open={isOpen} onClose={setIsOpen}>
       <DialogBackdrop
@@ -160,7 +159,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                 onClick={() => {
                   setIsOpen(false);
                   setIsDisabled(false);
-                  clearingInputFields();
+                  clearInputFields();
                 }}
               >
                 <XMarkIcon className="h-6 w-6" aria-hidden="true" />
@@ -209,7 +208,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                     className="text-sm font-semibold leading-6 text-gray-900"
                     onClick={() => {
                       setIsDisabled(true);
-                      clearingInputFields();
+                      clearInputFields();
                     }}
                   >
                     Отмена
@@ -219,7 +218,15 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                     disabled={isDisabled}
                     className="rounded-md bg-red-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     onClick={() => {
-                      title !== "" ? addMovieInList() : setIsDisabled(true);
+                      title !== ""
+                        ? addMovieInList({
+                            title,
+                            comment,
+                            image: "",
+                            genres: genres.split(", "),
+                            isWatched: false,
+                          })
+                        : setIsDisabled(true);
                     }}
                   >
                     Сохранить

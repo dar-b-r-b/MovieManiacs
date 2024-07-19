@@ -57,7 +57,7 @@ function App() {
     () =>
       async function getMovies() {
         try {
-          const response = await axios.get({ serverUrl });
+          const response = await axios.get(serverUrl);
           setMovies(response.data);
         } catch (err) {
           console.error(err.toJSON());
