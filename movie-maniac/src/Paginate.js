@@ -7,9 +7,18 @@ import { serverUrl } from "./config.js";
 
 function IsWatchedButton({ id, isWatched }) {
   const [watched, setWatched] = useState(isWatched);
-  function handleClick() {
+
+  async function handleClick() {
+    try {
+      await axios.patch(`${serverUrl}/${id}`, {
+        isWatched: true,
+      });
+    } catch (err) {
+      console.error(err.toJSON());
+    }
     setWatched(!watched);
   }
+
   return (
     <button className="flex flex-col items-center" onClick={handleClick}>
       <img
