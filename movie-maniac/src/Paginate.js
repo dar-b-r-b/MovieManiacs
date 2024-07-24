@@ -4,7 +4,7 @@ import { GoArrowLeft } from "react-icons/go";
 import { GoArrowRight } from "react-icons/go";
 import axios from "axios";
 import { serverUrl } from "./config.js";
-
+import DeleteDialog from "./DeleteDialog.js";
 function IsWatchedButton({ id, isWatched }) {
   const [watched, setWatched] = useState(isWatched);
 
@@ -31,16 +31,8 @@ function IsWatchedButton({ id, isWatched }) {
 }
 
 function MoviesInformation({ movies, setMovies, currentItems }) {
-  async function deleteMovie(id) {
-    try {
-      const response = await axios.delete(`${serverUrl}/${id}`);
-      console.log(response);
-      setMovies(movies.filter((m) => m.id !== id));
-    } catch (err) {
-      console.error(err.toJSON());
-    }
-  }
-
+  const [isOpen, setIsOpen] = useState(false);
+  const [movieId, setMovieId] = useState("");
   return (
     <>
       {currentItems &&
@@ -60,9 +52,13 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
             </div>
             <p className="basis-72 pt-3">{movie.comment}</p>
             <IsWatchedButton id={movie.id} isWatched={movie.isWatched} />
+
             <button
               className="flex flex-col items-center"
-              onClick={() => deleteMovie(movie.id)}
+              onClick={() => {
+                setIsOpen(true);
+                setMovieId(movie.id);
+              }}
             >
               <img
                 className="size-fit"
@@ -72,6 +68,13 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
             </button>
           </div>
         ))}
+      <DeleteDialog
+        movieId={movieId}
+        movies={movies}
+        setMovies={setMovies}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
     </>
   );
 }
