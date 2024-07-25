@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import axios from "axios";
+import { serverUrl } from "./config.js";
 
 function UploadMovieCover({ cover, setCover }) {
   return (
@@ -118,27 +120,45 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
   const [genres, setGenres] = useState("");
   const [comment, setComment] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
+  const [currentId, setCurrentId] = useState("");
+  const [activeIndex, setActiveIndex] = useState("");
+  const [copies, setCopies] = useState([]);
 
-  function clearingInputFields() {
+  function clearInputFields() {
     setTitle("");
     setGenres("");
     setComment("");
   }
 
-  function addMovieInList() {
-    setMovies([
-      {
-        id: (movies.length + 1).toString(),
-        title,
-        comment,
-        image: "film-cover.jpg",
-        genres: genres.split(", "),
-        isWatched: false,
-      },
-      ...movies,
-    ]);
+  async function addMovieInList(newMovie) {
+    try {
+      const response = await axios.post(serverUrl, newMovie);
+      setCurrentId(response.data.movie.id);
+      setMovies([response.data.movie, ...movies]);
+      console.log(response.data.copies);
+      const copiesList = response.data.copies.filter((x) => x.score > 80);
+      if (copiesList.length) {
+        setActiveIndex(2);
+        setCopies(copiesList.map((t) => t.title));
+      } else {
+        setActiveIndex(1);
+        clearInputFields();
+      }
+    } catch (err) {
+      console.error(err.toJSON());
+    }
+
     setIsDisabled(true);
-    clearingInputFields();
+  }
+
+  async function deleteNewMovie(id) {
+    try {
+      await axios.delete(`${serverUrl}/${id}`);
+    } catch (err) {
+      console.error(err.toJSON());
+    }
+
+    setMovies(movies.filter((m) => m.id !== id));
   }
   return (
     <Dialog className="relative z-10" open={isOpen} onClose={setIsOpen}>
@@ -160,7 +180,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                 onClick={() => {
                   setIsOpen(false);
                   setIsDisabled(false);
-                  clearingInputFields();
+                  clearInputFields();
                 }}
               >
                 <XMarkIcon className="h-6 w-6" aria-hidden="true" />
@@ -179,12 +199,14 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                   comment={comment}
                   setComment={setComment}
                 />
+
                 <div
-                  className="mt-4 flex p-4 text-sm text-red-800 rounded-lg bg-red-50"
+                  class="p-4 mt-3 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
                   role="alert"
+                  hidden={activeIndex !== 1}
                 >
                   <svg
-                    className="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]"
+                    class="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
@@ -192,14 +214,33 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                   >
                     <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                   </svg>
-                  <span className="sr-only">Danger</span>
+                  <span class="font-medium">
+                    Фильм добавлен и обречен на забвение
+                  </span>
+                </div>
+
+                <div
+                  className="mt-4 p-4 text-sm text-red-800 rounded-lg bg-red-50"
+                  role="alert"
+                  hidden={activeIndex !== 2}
+                >
                   <div>
+                    <svg
+                      className="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
                     <span className="font-medium">
-                      Ensure that these requirements are met:
+                      Найдены фильмы с похожим названием:
                     </span>
                     <ul className="mt-1.5 list-disc list-inside">
-                      <li>At least 10 characters (and up to 100 characters)</li>
-                      <li>At least one lowercase character</li>
+                      {copies.map((m) => (
+                        <li>{m}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -209,17 +250,25 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                     className="text-sm font-semibold leading-6 text-gray-900"
                     onClick={() => {
                       setIsDisabled(true);
-                      clearingInputFields();
+                      deleteNewMovie(currentId);
                     }}
                   >
-                    Отмена
+                    Удалить
                   </button>
                   <button
                     type="submit"
                     disabled={isDisabled}
                     className="rounded-md bg-red-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     onClick={() => {
-                      title !== "" ? addMovieInList() : setIsDisabled(true);
+                      title !== ""
+                        ? addMovieInList({
+                            title,
+                            comment,
+                            image: "",
+                            genres: genres.split(", "),
+                            isWatched: false,
+                          })
+                        : setIsDisabled(true);
                     }}
                   >
                     Сохранить

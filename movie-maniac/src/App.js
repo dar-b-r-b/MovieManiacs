@@ -1,37 +1,12 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { serverUrl } from "./config.js";
 
 import AddMovieForm from "./AddMovieForm";
 import Paginate from "./Paginate";
 const classNameForButtons =
   "rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50";
-
-const initialMovies = [
-  {
-    id: "1",
-    title: "Земля кочевников",
-    image: "Nomadland.jpg",
-    comment: "Рейтинг IMDb 7.3",
-    genres: ["драма"],
-    isWatched: false,
-  },
-  {
-    id: "2",
-    title: "Бескрайний бассейн",
-    image: "Infinity Pool.jpg",
-    comment: "",
-    genres: ["фантастика", "триллер"],
-    isWatched: true,
-  },
-  {
-    id: "3",
-    title: "Дом дракона",
-    image: "House of the Dragon.jpg",
-    comment: "Сериал",
-    genres: ["фэнтези", "боевик"],
-    isWatched: false,
-  },
-];
 
 function Header() {
   return (
@@ -75,8 +50,20 @@ function ButtonRandomMovie({ movies, setMovies }) {
 }
 
 function App() {
-  const [movies, setMovies] = useState(initialMovies);
+  const [movies, setMovies] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(
+    () =>
+      async function getMovies() {
+        try {
+          const response = await axios.get(serverUrl);
+          setMovies(response.data);
+        } catch (err) {
+          console.error(err.toJSON());
+        }
+      }
+  );
   return (
     <>
       <Header />

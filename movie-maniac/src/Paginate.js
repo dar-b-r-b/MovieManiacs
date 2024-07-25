@@ -2,12 +2,23 @@ import { useState } from "react";
 import ReactPaginate from "react-paginate";
 import { GoArrowLeft } from "react-icons/go";
 import { GoArrowRight } from "react-icons/go";
-
+import axios from "axios";
+import { serverUrl } from "./config.js";
+import DeleteDialog from "./DeleteDialog.js";
 function IsWatchedButton({ id, isWatched }) {
   const [watched, setWatched] = useState(isWatched);
-  function handleClick() {
+
+  async function handleClick() {
+    try {
+      await axios.patch(`${serverUrl}/${id}`, {
+        isWatched: true,
+      });
+    } catch (err) {
+      console.error(err.toJSON());
+    }
     setWatched(!watched);
   }
+
   return (
     <button className="flex flex-col items-center" onClick={handleClick}>
       <img
@@ -20,6 +31,8 @@ function IsWatchedButton({ id, isWatched }) {
 }
 
 function MoviesInformation({ movies, setMovies, currentItems }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [movieId, setMovieId] = useState("");
   return (
     <>
       {currentItems &&
@@ -28,16 +41,24 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
             key={movie.id}
             className="flex mt-4 mr-28 ml-28 justify-evenly h-24"
           >
-            <img alt="Обложка фильма" src={movie.image} className=""></img>
+            <img
+              alt="Обложка фильма"
+              src={movie.image ? "" : "film-cover.jpg"}
+              className=""
+            ></img>
             <div className="flex flex-col justify-evenly basis-72">
               <p>Название: {movie.title}</p>
               <p>Жанр: {movie.genres.join(", ")}</p>
             </div>
             <p className="basis-72 pt-3">{movie.comment}</p>
             <IsWatchedButton id={movie.id} isWatched={movie.isWatched} />
+
             <button
               className="flex flex-col items-center"
-              onClick={() => setMovies(movies.filter((m) => m.id !== movie.id))}
+              onClick={() => {
+                setIsOpen(true);
+                setMovieId(movie.id);
+              }}
             >
               <img
                 className="size-fit"
@@ -47,6 +68,13 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
             </button>
           </div>
         ))}
+      <DeleteDialog
+        movieId={movieId}
+        movies={movies}
+        setMovies={setMovies}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+      />
     </>
   );
 }
