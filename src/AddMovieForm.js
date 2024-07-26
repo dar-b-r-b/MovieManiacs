@@ -3,8 +3,9 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { serverUrl } from "./config.js";
+import PropTypes, { string, object } from "prop-types";
 
-function UploadMovieCover({ cover, setCover }) {
+function UploadMovieCover() {
   return (
     <div>
       <label
@@ -114,8 +115,31 @@ function InputCommentAboutMovie({ comment, setComment }) {
   );
 }
 
+InputMovieTitle.propTypes = {
+  title: PropTypes.string,
+  setTitle: PropTypes.func,
+  isDisabled: PropTypes.bool,
+  setIsDisabled: PropTypes.func,
+};
+
+InputMovieGenre.propTypes = {
+  genres: PropTypes.arrayOf(string),
+  setGenres: PropTypes.func,
+};
+
+InputCommentAboutMovie.propTypes = {
+  comment: PropTypes.string,
+  setComment: PropTypes.func,
+};
+
+AddMovieForm.propTypes = {
+  isOpen: PropTypes.bool,
+  setIsOpen: PropTypes.func,
+  movies: PropTypes.arrayOf(object),
+  setMovies: PropTypes.func,
+};
+
 export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
-  const [cover, setCover] = useState(null);
   const [title, setTitle] = useState("");
   const [genres, setGenres] = useState("");
   const [comment, setComment] = useState("");
@@ -187,7 +211,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
               </button>
 
               <div className="flex flex-col w-full">
-                <UploadMovieCover cover={cover} setCover={setCover} />
+                <UploadMovieCover />
                 <InputMovieTitle
                   title={title}
                   setTitle={setTitle}
@@ -201,12 +225,12 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                 />
 
                 <div
-                  class="p-4 mt-3 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
+                  className="p-4 mt-3 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
                   role="alert"
                   hidden={activeIndex !== 1}
                 >
                   <svg
-                    class="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
+                    className="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
@@ -214,7 +238,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                   >
                     <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                   </svg>
-                  <span class="font-medium">
+                  <span className="font-medium">
                     Фильм добавлен и обречен на забвение
                   </span>
                 </div>

@@ -1,6 +1,15 @@
 import { Description, Dialog, DialogPanel } from "@headlessui/react";
 import axios from "axios";
 import { serverUrl } from "./config.js";
+import PropTypes, { object } from "prop-types";
+
+DeleteDialog.propTypes = {
+  movieId: PropTypes.string,
+  movies: PropTypes.arrayOf(object),
+  setMovies: PropTypes.func,
+  isOpen: PropTypes.bool,
+  setIsOpen: PropTypes.func,
+};
 
 export default function DeleteDialog({
   movieId,

@@ -5,6 +5,8 @@ import { GoArrowRight } from "react-icons/go";
 import axios from "axios";
 import { serverUrl } from "./config.js";
 import DeleteDialog from "./DeleteDialog.js";
+import PropTypes, { object } from "prop-types";
+
 function IsWatchedButton({ id, isWatched }) {
   const [watched, setWatched] = useState(isWatched);
 
@@ -78,6 +80,22 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
     </>
   );
 }
+
+IsWatchedButton.propTypes = {
+  id: PropTypes.string,
+  isWatched: PropTypes.bool,
+};
+
+MoviesInformation.propTypes = {
+  movies: PropTypes.arrayOf(object),
+  setMovies: PropTypes.func,
+  currentItems: PropTypes.arrayOf(object),
+};
+
+Paginate.propTypes = {
+  movies: PropTypes.arrayOf(object),
+  setMovies: PropTypes.func,
+};
 
 export default function Paginate({ movies, setMovies }) {
   const itemsPerPage = 3;
