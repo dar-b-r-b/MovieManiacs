@@ -4,6 +4,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { serverUrl } from "./config.js";
 import PropTypes, { string, object } from "prop-types";
+import { v4 as uuidv4 } from "uuid";
 
 function UploadMovieCover() {
   return (
@@ -263,7 +264,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                     </span>
                     <ul className="mt-1.5 list-disc list-inside">
                       {copies.map((m) => (
-                        <li>{m}</li>
+                        <li key={uuidv4()}>{m}</li>
                       ))}
                     </ul>
                   </div>

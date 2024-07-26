@@ -1,10 +1,10 @@
 import "./App.css";
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { serverUrl } from "./config.js";
-import PropTypes, { object } from "prop-types";
+import { useEffect, useState } from "react";
 import AddMovieForm from "./AddMovieForm";
+import axios from "axios";
 import Paginate from "./Paginate";
+import PropTypes, { object } from "prop-types";
+import { serverUrl } from "./config.js";
 
 const classNameForButtons =
   "rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50";
