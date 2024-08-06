@@ -15,7 +15,7 @@
       }
     },
     "plugins": ["react", "react-hooks", "import", "sort-imports-es6-autofix"],
-    "rules": {
+    "rules": { "react/prop-types": "off",
       "import/order":[
         1, {"groups": [
     "external", 

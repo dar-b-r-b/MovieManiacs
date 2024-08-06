@@ -2,25 +2,49 @@ import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { PropTypes } from "prop-types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { serverUrl } from "./config.js";
 
-function UploadMovieCover({ setCover }) {
+function UploadMovieCover({ cover, setCover, coverDataURL, setCoverDataURL }) {
+  const changeHandler = (e) => {
+    setCover(e.target.files[0]);
+  };
+  useEffect(() => {
+    let fileReader,
+      isCancel = false;
+    if (cover) {
+      fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        const { result } = e.target;
+        if (result && !isCancel) {
+          setCoverDataURL(result);
+        }
+      };
+      fileReader.readAsDataURL(cover);
+    }
+    return () => {
+      isCancel = true;
+      if (fileReader && fileReader.readyState === 1) {
+        fileReader.abort();
+      }
+    };
+  }, [cover]);
+
   return (
-    <div>
+    <>
       <label
         htmlFor="cover-photo"
         className="block text-sm font-medium leading-6 text-gray-900"
       >
         Обложка
       </label>
-      <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-4">
-        <div className="text-center">
+      <div className="flex flex-row">
+        <div className="mt-2 flex justify-evenly grow rounded-lg border border-dashed border-gray-900/25 px-6 py-4">
           <div className="flex text-sm leading-6 text-gray-600">
             <label
               htmlFor="file-upload"
-              className="relative cursor-pointer rounded-md bg-white font-semibold text-red-800 focus-within:outline-none"
+              className="relative self-center cursor-pointer rounded-md bg-white font-semibold text-red-800 focus-within:outline-none"
             >
               <span>Загрузите обложку</span>
               <input
@@ -28,13 +52,18 @@ function UploadMovieCover({ setCover }) {
                 name="file-upload"
                 type="file"
                 className="sr-only"
-                onChange={(e) => setCover(e.target.files[0])}
+                onChange={changeHandler}
               />
             </label>
           </div>
         </div>
+        {coverDataURL ? (
+          <p className="flex mt-2 ml-3 size-52 justify-center">
+            {<img src={coverDataURL} alt="preview" />}
+          </p>
+        ) : null}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -116,6 +145,8 @@ function InputCommentAboutMovie({ comment, setComment }) {
 UploadMovieCover.propTypes = {
   cover: PropTypes.any,
   setCover: PropTypes.func,
+  coverDataURL: PropTypes.string,
+  setCoverDataURL: PropTypes.func,
 };
 
 InputMovieTitle.propTypes = {
@@ -144,6 +175,7 @@ AddMovieForm.propTypes = {
 
 export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
   const [cover, setCover] = useState(null);
+  const [coverDataURL, setCoverDataURL] = useState(null);
   const [title, setTitle] = useState("");
   const [genres, setGenres] = useState("");
   const [comment, setComment] = useState("");
@@ -153,9 +185,13 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
   const [copies, setCopies] = useState([]);
 
   function clearInputFields() {
+    setCover(null);
     setTitle("");
     setGenres("");
     setComment("");
+    console.log(1);
+    setCoverDataURL(null);
+    console.log(coverDataURL);
   }
 
   async function addMovieInList(newMovie) {
@@ -228,7 +264,12 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
               </button>
 
               <div className="flex flex-col w-full">
-                <UploadMovieCover setCover={setCover} />
+                <UploadMovieCover
+                  cover={cover}
+                  setCover={setCover}
+                  coverDataURL={coverDataURL}
+                  setCoverDataURL={setCoverDataURL}
+                />
                 <InputMovieTitle
                   title={title}
                   setTitle={setTitle}
@@ -311,6 +352,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                       setIsDisabled(true);
                       setActiveIndex(3);
                       deleteNewMovie(currentId);
+                      clearInputFields();
                     }}
                   >
                     Удалить
