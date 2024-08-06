@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
-import { serverUrl } from "./config.js";
-import PropTypes, { string, object } from "prop-types";
+import { PropTypes } from "prop-types";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { serverUrl } from "./config.js";
 
-function UploadMovieCover() {
+function UploadMovieCover({ setCover }) {
   return (
     <div>
       <label
@@ -22,19 +22,16 @@ function UploadMovieCover() {
               htmlFor="file-upload"
               className="relative cursor-pointer rounded-md bg-white font-semibold text-red-800 focus-within:outline-none"
             >
-              <span>Upload a file</span>
+              <span>Загрузите обложку</span>
               <input
                 id="file-upload"
                 name="file-upload"
                 type="file"
                 className="sr-only"
+                onChange={(e) => setCover(e.target.files[0])}
               />
             </label>
-            <p className="pl-1">or drag and drop</p>
           </div>
-          <p className="text-xs leading-5 text-gray-600">
-            PNG, JPG, GIF up to 10MB
-          </p>
         </div>
       </div>
     </div>
@@ -116,6 +113,11 @@ function InputCommentAboutMovie({ comment, setComment }) {
   );
 }
 
+UploadMovieCover.propTypes = {
+  cover: PropTypes.any,
+  setCover: PropTypes.func,
+};
+
 InputMovieTitle.propTypes = {
   title: PropTypes.string,
   setTitle: PropTypes.func,
@@ -124,7 +126,7 @@ InputMovieTitle.propTypes = {
 };
 
 InputMovieGenre.propTypes = {
-  genres: PropTypes.arrayOf(string),
+  genres: PropTypes.string,
   setGenres: PropTypes.func,
 };
 
@@ -136,11 +138,12 @@ InputCommentAboutMovie.propTypes = {
 AddMovieForm.propTypes = {
   isOpen: PropTypes.bool,
   setIsOpen: PropTypes.func,
-  movies: PropTypes.arrayOf(object),
+  movies: PropTypes.arrayOf(PropTypes.object),
   setMovies: PropTypes.func,
 };
 
 export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
+  const [cover, setCover] = useState(null);
   const [title, setTitle] = useState("");
   const [genres, setGenres] = useState("");
   const [comment, setComment] = useState("");
@@ -157,7 +160,19 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
 
   async function addMovieInList(newMovie) {
     try {
-      const response = await axios.post(serverUrl, newMovie);
+      const formData = new FormData();
+      formData.append("title", newMovie.title);
+      formData.append("comment", newMovie.comment);
+      for (let i = 0; i < newMovie.genres.length; i++) {
+        formData.append("genres", newMovie.genres[i]);
+      }
+      formData.append("image", newMovie.cover);
+
+      const response = await axios.post(`${serverUrl}/movies`, formData, {
+        headers: {
+          "Content-Type": `multipart/form-data`,
+        },
+      });
       setCurrentId(response.data.movie.id);
       setMovies([response.data.movie, ...movies]);
       console.log(response.data.copies);
@@ -178,7 +193,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
 
   async function deleteNewMovie(id) {
     try {
-      await axios.delete(`${serverUrl}/${id}`);
+      await axios.delete(`${serverUrl}/movies/${id}`);
     } catch (err) {
       console.error(err.toJSON());
     }
@@ -206,13 +221,14 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                   setIsOpen(false);
                   setIsDisabled(false);
                   clearInputFields();
+                  setActiveIndex(0);
                 }}
               >
                 <XMarkIcon className="h-6 w-6" aria-hidden="true" />
               </button>
 
               <div className="flex flex-col w-full">
-                <UploadMovieCover />
+                <UploadMovieCover setCover={setCover} />
                 <InputMovieTitle
                   title={title}
                   setTitle={setTitle}
@@ -247,7 +263,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                 <div
                   className="mt-4 p-4 text-sm text-red-800 rounded-lg bg-red-50"
                   role="alert"
-                  hidden={activeIndex !== 2}
+                  hidden={activeIndex !== 2 && activeIndex !== 3}
                 >
                   <div>
                     <svg
@@ -269,12 +285,31 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                     </ul>
                   </div>
                 </div>
+
+                <div
+                  className="p-4 mt-3 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
+                  role="alert"
+                  hidden={activeIndex !== 3}
+                >
+                  <svg
+                    className="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                  </svg>
+                  <span className="font-medium">Фильм удален</span>
+                </div>
+
                 <div className="mt-4 flex justify-end gap-x-6">
                   <button
                     type="button"
                     className="text-sm font-semibold leading-6 text-gray-900"
                     onClick={() => {
                       setIsDisabled(true);
+                      setActiveIndex(3);
                       deleteNewMovie(currentId);
                     }}
                   >
@@ -289,9 +324,8 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                         ? addMovieInList({
                             title,
                             comment,
-                            image: "",
+                            cover,
                             genres: genres.split(", "),
-                            isWatched: false,
                           })
                         : setIsDisabled(true);
                     }}

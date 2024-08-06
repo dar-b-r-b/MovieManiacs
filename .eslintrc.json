@@ -51,11 +51,6 @@
       "caseInsensitive": false
    }
     }],
-    "sort-imports-es6-autofix/sort-imports-es6": [2, {
-      "ignoreCase": true,
-      "ignoreMemberSort": false,
-      "memberSyntaxSortOrder": ["none", "all", "multiple", "single"]
-    }],
       //отключает ошибку связанную с импортом React
        "react/react-in-jsx-scope": "off"       
     }

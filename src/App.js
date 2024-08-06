@@ -1,9 +1,9 @@
 import "./App.css";
+import axios from "axios";
+import PropTypes, { object } from "prop-types";
 import { useEffect, useState } from "react";
 import AddMovieForm from "./AddMovieForm";
-import axios from "axios";
 import Paginate from "./Paginate";
-import PropTypes, { object } from "prop-types";
 import { serverUrl } from "./config.js";
 
 const classNameForButtons =
@@ -58,12 +58,13 @@ function App() {
     () =>
       async function getMovies() {
         try {
-          const response = await axios.get(serverUrl);
+          const response = await axios.get(`${serverUrl}/movies`);
           setMovies(response.data);
         } catch (err) {
           console.error(err.toJSON());
         }
-      }
+      },
+    []
   );
   return (
     <>

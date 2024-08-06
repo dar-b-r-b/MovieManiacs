@@ -1,0 +1,46 @@
+import { useState } from "react";
+import axios from "axios";
+import "./App.css";
+
+function App() {
+  const [name, setName] = useState("");
+  const [image, setImage] = useState(null);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", name);
+    formData.append("comment", "my super duper comment");
+
+    const genres = ["1", "2"];
+
+    for (var i = 0; i < genres.length; i++) {
+      formData.append("genres", genres[i]);
+    }
+
+    console.log(...formData);
+
+    if (image) {
+      formData.append("image", image);
+    }
+
+    const response = await axios.post(
+      "http://localhost:64817/movies",
+      formData
+    );
+  };
+
+  return (
+    <form onSubmit={submit}>
+      <input id="name" onChange={(e) => setName(e.target.value)} />
+      <input
+        id="image"
+        type="file"
+        onChange={(e) => setImage(e.target.files[0])}
+      />
+      <button type="submit">submit</button>
+    </form>
+  );
+}
+
+export default App;

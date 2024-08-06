@@ -1,7 +1,7 @@
 import { Description, Dialog, DialogPanel } from "@headlessui/react";
 import axios from "axios";
-import { serverUrl } from "./config.js";
 import PropTypes, { object } from "prop-types";
+import { serverUrl } from "./config.js";
 
 DeleteDialog.propTypes = {
   movieId: PropTypes.string,
@@ -20,7 +20,7 @@ export default function DeleteDialog({
 }) {
   async function deleteMovie() {
     try {
-      const response = await axios.delete(`${serverUrl}/${movieId}`);
+      const response = await axios.delete(`${serverUrl}/movies/${movieId}`);
       console.log(movieId);
       console.log(response);
       setMovies(movies.filter((m) => m.id !== movieId));
