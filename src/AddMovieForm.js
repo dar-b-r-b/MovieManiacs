@@ -1,41 +1,69 @@
-import { useState } from "react";
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
+import { PropTypes } from "prop-types";
+import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { serverUrl } from "./config.js";
 
-function UploadMovieCover({ cover, setCover }) {
+function UploadMovieCover({ cover, setCover, coverDataURL, setCoverDataURL }) {
+  const changeHandler = (e) => {
+    setCover(e.target.files[0]);
+  };
+  useEffect(() => {
+    let fileReader,
+      isCancel = false;
+    if (cover) {
+      fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        const { result } = e.target;
+        if (result && !isCancel) {
+          setCoverDataURL(result);
+        }
+      };
+      fileReader.readAsDataURL(cover);
+    }
+    return () => {
+      isCancel = true;
+      if (fileReader && fileReader.readyState === 1) {
+        fileReader.abort();
+      }
+    };
+  }, [cover]);
+
   return (
-    <div>
+    <>
       <label
         htmlFor="cover-photo"
         className="block text-sm font-medium leading-6 text-gray-900"
       >
         Обложка
       </label>
-      <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-4">
-        <div className="text-center">
+      <div className="flex flex-row">
+        <div className="mt-2 flex justify-evenly grow rounded-lg border border-dashed border-gray-900/25 px-6 py-4">
           <div className="flex text-sm leading-6 text-gray-600">
             <label
               htmlFor="file-upload"
-              className="relative cursor-pointer rounded-md bg-white font-semibold text-red-800 focus-within:outline-none"
+              className="relative self-center cursor-pointer rounded-md bg-white font-semibold text-red-800 focus-within:outline-none"
             >
-              <span>Upload a file</span>
+              <span>Загрузите обложку</span>
               <input
                 id="file-upload"
                 name="file-upload"
                 type="file"
                 className="sr-only"
+                onChange={changeHandler}
               />
             </label>
-            <p className="pl-1">or drag and drop</p>
           </div>
-          <p className="text-xs leading-5 text-gray-600">
-            PNG, JPG, GIF up to 10MB
-          </p>
         </div>
+        {coverDataURL ? (
+          <p className="flex mt-2 ml-3 size-52 justify-center">
+            {<img src={coverDataURL} alt="preview" />}
+          </p>
+        ) : null}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -114,8 +142,40 @@ function InputCommentAboutMovie({ comment, setComment }) {
   );
 }
 
+UploadMovieCover.propTypes = {
+  cover: PropTypes.any,
+  setCover: PropTypes.func,
+  coverDataURL: PropTypes.string,
+  setCoverDataURL: PropTypes.func,
+};
+
+InputMovieTitle.propTypes = {
+  title: PropTypes.string,
+  setTitle: PropTypes.func,
+  isDisabled: PropTypes.bool,
+  setIsDisabled: PropTypes.func,
+};
+
+InputMovieGenre.propTypes = {
+  genres: PropTypes.string,
+  setGenres: PropTypes.func,
+};
+
+InputCommentAboutMovie.propTypes = {
+  comment: PropTypes.string,
+  setComment: PropTypes.func,
+};
+
+AddMovieForm.propTypes = {
+  isOpen: PropTypes.bool,
+  setIsOpen: PropTypes.func,
+  movies: PropTypes.arrayOf(PropTypes.object),
+  setMovies: PropTypes.func,
+};
+
 export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
   const [cover, setCover] = useState(null);
+  const [coverDataURL, setCoverDataURL] = useState(null);
   const [title, setTitle] = useState("");
   const [genres, setGenres] = useState("");
   const [comment, setComment] = useState("");
@@ -125,14 +185,30 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
   const [copies, setCopies] = useState([]);
 
   function clearInputFields() {
+    setCover(null);
     setTitle("");
     setGenres("");
     setComment("");
+    console.log(1);
+    setCoverDataURL(null);
+    console.log(coverDataURL);
   }
 
   async function addMovieInList(newMovie) {
     try {
-      const response = await axios.post(serverUrl, newMovie);
+      const formData = new FormData();
+      formData.append("title", newMovie.title);
+      formData.append("comment", newMovie.comment);
+      for (let i = 0; i < newMovie.genres.length; i++) {
+        formData.append("genres", newMovie.genres[i]);
+      }
+      formData.append("image", newMovie.cover);
+
+      const response = await axios.post(`${serverUrl}/movies`, formData, {
+        headers: {
+          "Content-Type": `multipart/form-data`,
+        },
+      });
       setCurrentId(response.data.movie.id);
       setMovies([response.data.movie, ...movies]);
       console.log(response.data.copies);
@@ -153,7 +229,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
 
   async function deleteNewMovie(id) {
     try {
-      await axios.delete(`${serverUrl}/${id}`);
+      await axios.delete(`${serverUrl}/movies/${id}`);
     } catch (err) {
       console.error(err.toJSON());
     }
@@ -181,13 +257,19 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                   setIsOpen(false);
                   setIsDisabled(false);
                   clearInputFields();
+                  setActiveIndex(0);
                 }}
               >
                 <XMarkIcon className="h-6 w-6" aria-hidden="true" />
               </button>
 
               <div className="flex flex-col w-full">
-                <UploadMovieCover cover={cover} setCover={setCover} />
+                <UploadMovieCover
+                  cover={cover}
+                  setCover={setCover}
+                  coverDataURL={coverDataURL}
+                  setCoverDataURL={setCoverDataURL}
+                />
                 <InputMovieTitle
                   title={title}
                   setTitle={setTitle}
@@ -201,12 +283,12 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                 />
 
                 <div
-                  class="p-4 mt-3 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
+                  className="p-4 mt-3 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
                   role="alert"
                   hidden={activeIndex !== 1}
                 >
                   <svg
-                    class="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
+                    className="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
@@ -214,7 +296,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                   >
                     <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                   </svg>
-                  <span class="font-medium">
+                  <span className="font-medium">
                     Фильм добавлен и обречен на забвение
                   </span>
                 </div>
@@ -222,7 +304,7 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                 <div
                   className="mt-4 p-4 text-sm text-red-800 rounded-lg bg-red-50"
                   role="alert"
-                  hidden={activeIndex !== 2}
+                  hidden={activeIndex !== 2 && activeIndex !== 3}
                 >
                   <div>
                     <svg
@@ -239,18 +321,38 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                     </span>
                     <ul className="mt-1.5 list-disc list-inside">
                       {copies.map((m) => (
-                        <li>{m}</li>
+                        <li key={uuidv4()}>{m}</li>
                       ))}
                     </ul>
                   </div>
                 </div>
+
+                <div
+                  className="p-4 mt-3 mb-4 text-sm text-green-800 rounded-lg bg-green-50 "
+                  role="alert"
+                  hidden={activeIndex !== 3}
+                >
+                  <svg
+                    className="flex-shrink-0 inline w-4 h-4 me-3 mb-1"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                  </svg>
+                  <span className="font-medium">Фильм удален</span>
+                </div>
+
                 <div className="mt-4 flex justify-end gap-x-6">
                   <button
                     type="button"
                     className="text-sm font-semibold leading-6 text-gray-900"
                     onClick={() => {
                       setIsDisabled(true);
+                      setActiveIndex(3);
                       deleteNewMovie(currentId);
+                      clearInputFields();
                     }}
                   >
                     Удалить
@@ -264,9 +366,8 @@ export default function AddMovieForm({ isOpen, setIsOpen, movies, setMovies }) {
                         ? addMovieInList({
                             title,
                             comment,
-                            image: "",
+                            cover,
                             genres: genres.split(", "),
-                            isWatched: false,
                           })
                         : setIsDisabled(true);
                     }}

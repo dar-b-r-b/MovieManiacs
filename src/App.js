@@ -1,10 +1,11 @@
 import "./App.css";
-import { useState, useEffect } from "react";
 import axios from "axios";
-import { serverUrl } from "./config.js";
-
+import PropTypes, { object } from "prop-types";
+import { useEffect, useState } from "react";
 import AddMovieForm from "./AddMovieForm";
 import Paginate from "./Paginate";
+import { serverUrl } from "./config.js";
+
 const classNameForButtons =
   "rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50";
 
@@ -57,12 +58,13 @@ function App() {
     () =>
       async function getMovies() {
         try {
-          const response = await axios.get(serverUrl);
+          const response = await axios.get(`${serverUrl}/movies`);
           setMovies(response.data);
         } catch (err) {
           console.error(err.toJSON());
         }
-      }
+      },
+    []
   );
   return (
     <>
@@ -81,5 +83,14 @@ function App() {
     </>
   );
 }
+
+ButtonAddMovie.propTypes = {
+  setIsOpen: PropTypes.func,
+};
+
+ButtonRandomMovie.propTypes = {
+  movies: PropTypes.arrayOf(object),
+  setMovies: PropTypes.func,
+};
 
 export default App;

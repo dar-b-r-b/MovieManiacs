@@ -1,16 +1,18 @@
-import { useState } from "react";
-import ReactPaginate from "react-paginate";
-import { GoArrowLeft } from "react-icons/go";
-import { GoArrowRight } from "react-icons/go";
 import axios from "axios";
-import { serverUrl } from "./config.js";
+import PropTypes, { object } from "prop-types";
+import { useState } from "react";
+import { GoArrowLeft, GoArrowRight } from "react-icons/go";
+import ReactPaginate from "react-paginate";
 import DeleteDialog from "./DeleteDialog.js";
+
+import { serverUrl } from "./config.js";
+
 function IsWatchedButton({ id, isWatched }) {
   const [watched, setWatched] = useState(isWatched);
 
   async function handleClick() {
     try {
-      await axios.patch(`${serverUrl}/${id}`, {
+      await axios.patch(`${serverUrl}/movies/${id}`, {
         isWatched: true,
       });
     } catch (err) {
@@ -43,7 +45,9 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
           >
             <img
               alt="Обложка фильма"
-              src={movie.image ? "" : "film-cover.jpg"}
+              src={
+                movie.image ? `${serverUrl}/${movie.image}` : "film-cover.jpg"
+              }
               className=""
             ></img>
             <div className="flex flex-col justify-evenly basis-72">
@@ -78,6 +82,22 @@ function MoviesInformation({ movies, setMovies, currentItems }) {
     </>
   );
 }
+
+IsWatchedButton.propTypes = {
+  id: PropTypes.string,
+  isWatched: PropTypes.bool,
+};
+
+MoviesInformation.propTypes = {
+  movies: PropTypes.arrayOf(object),
+  setMovies: PropTypes.func,
+  currentItems: PropTypes.arrayOf(object),
+};
+
+Paginate.propTypes = {
+  movies: PropTypes.arrayOf(object),
+  setMovies: PropTypes.func,
+};
 
 export default function Paginate({ movies, setMovies }) {
   const itemsPerPage = 3;
